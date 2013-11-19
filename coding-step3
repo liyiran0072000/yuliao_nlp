@@ -1,0 +1,136 @@
+
+//This is the newest. Updated: 2013/11/14
+//这个版本是比对了省市之后，计算了词频词语之后，比对五百姓。
+//for 五百家姓的对照～
+
+import java.util.*;
+import java.io.*;
+
+public class shixianfencimatch {
+
+
+	
+	 static {
+		 System.out.println(System.getProperty("java.library.path")); 
+         //System.loadLibrary("NLPIR");
+     }
+	 
+	 
+	 
+	public static void main(String[] args) throws Exception
+	{
+
+	
+	
+	            String[] wordtmp = new String[10000000];
+	            String[] wordtmp2 = new String[10000000];
+	            String[] wordtmp3 = new String[10000000];
+	       
+	            
+	       
+	            int m;
+	            int i;	        
+	           File weibonameout;	     
+	           PrintStream out;
+	        
+	        
+	           File file1 = new File("D:\\weibooutdata\\matchdata-zhiwei\\fenci.txt");
+	           File file2 = new File("D:\\weibooutdata\\match-final\\wubaixing-merge-utf8.txt");
+	           
+	            FileInputStream a1 = new FileInputStream(file1);
+	            // 设置 读取文件的编码类型。。。
+	            InputStreamReader b1 = new InputStreamReader(a1,"UTF-8");
+	            BufferedReader c1 = new BufferedReader(b1);  
+	            int readerLine1 = 0;
+	            
+		         for(m=1;m<=wordtmp.length;m=m+1)
+		        {
+		          wordtmp[m-1] = null;
+		        }
+		         
+	            while (c1.ready()) {
+	             readerLine1 ++;   //设置 从那一行开始 取数据
+	             wordtmp[readerLine1-1] = c1.readLine();
+	            // System.out.println(wordtmp[readerLine1-1]);
+	            // System.out.println(readerLine1);
+	            }
+	            c1.close();
+	            b1.close();
+	            
+	            
+	            FileInputStream a2 = new FileInputStream(file2);
+	            // 设置 读取文件的编码类型。。。
+	            InputStreamReader b2 = new InputStreamReader(a2,"UTF-8");
+	            BufferedReader c2 = new BufferedReader(b2);  
+	            int readerLine2 = 0;
+	            
+	            for(m=1;m<=wordtmp2.length;m=m+1)
+		        {
+		          wordtmp2[m-1] = null;
+		        }
+	            while (c2.ready()) {
+	             readerLine2 ++;   //设置 从那一行开始 取数据
+	        
+	             wordtmp2[readerLine2-1] = c2.readLine(); 
+	           
+	            }
+	            c2.close();
+	            b2.close();
+	            
+	            
+	            System.out.println("ok1");
+	            for(m=1;m<=10000000;m=m+1)
+		        {
+		          wordtmp3[m-1] = null;
+		        }
+	            int countname = 0;
+	            String name;
+	            String name2;
+	            System.out.println("ok2");
+	            
+	            
+                for(m=1;m<readerLine1;m=m+1)
+                {
+                name=wordtmp[m-1].substring(0,1).trim();
+                 for(i=1;i<readerLine2;i=i+1)
+                 {            
+                  name2 = wordtmp2[i-1];
+                  int index1 = name.indexOf(name2);                 
+                  if(index1!=-1) 
+                  {
+                    countname = countname + 1;
+                    wordtmp3[countname-1]=wordtmp[m-1];
+                  }
+                 }	
+                }
+                System.out.println("ok3");    
+	            
+               weibonameout = new File("D:\\weibooutdata\\outfiles\\fencinamezhiwei.txt");//输出文件名    
+               System.out.println("ok4"); 
+               out=new PrintStream(new FileOutputStream(weibonameout));
+         
+               
+               System.out.println("ok5"); 
+   	           System.setOut(out); //设置默认输出位置
+   	             
+	           for(m=1;m<=countname;m=m+1)
+	           {
+	        	//System.out.println(m); 
+	            System.out.println(wordtmp3[m-1]);     
+	            }  
+	           
+	         
+	           out.close();
+	          
+	}
+	    }
+
+
+	 
+
+
+
+ 
+
+
+ 
