@@ -1,0 +1,252 @@
+
+import kevin.zhang.NLPIR;
+
+//**revised 11-14-2013
+//**这个版本是专门为在运行了testshixian.java后，得到的缩小了范围之后的微博，再对其进行分词，计算词频等。 
+//**最新版本首先delete数字以及英文，再分词
+
+import java.util.*;
+import java.io.*;
+
+public class testshixianfenci {
+
+
+	
+	 static {
+		 System.out.println(System.getProperty("java.library.path")); 
+         System.loadLibrary("NLPIR");
+     }
+	 
+	 
+	 
+	public static void main(String[] args) throws Exception
+	{
+
+		try
+		{
+			NLPIR testNLPIR = new NLPIR();
+	    String argu= ".";
+
+			System.out.println("NLPIR_Init");
+			if (testNLPIR.NLPIR_Init(argu.getBytes("GB2312"),1) == false)
+			{
+				System.out.println("Init Fail!");
+			}else{
+				System.out.println("Init succeed!");
+			}
+			
+			        int nwordtmp;
+	            int y;
+	            int j;
+	            int flag;
+	            int nfile = 547; //547;//文件总数目
+	            String[] wordtmp = new String[10000000];//存储一条微博分出来的词语
+	            int nstored = 0;//已经存储的词的数目
+	            int nwords = 500000;//假定最多有500000常用词*******************
+	            int[] counttime = new int[nwords]; //存储词频
+	            String[] weibowords = new String[nwords];//存储分出来的词语
+	            int x = 0;
+	            
+	            
+	            InputStream inputStream;
+	            byte[]b;
+	            String sInput;
+	            byte[] nativeBytes;
+	            String nativeStr1;
+	            int m;
+	            int i;
+	            String[] weibo_order;
+	            int[] count_order;
+	            int norder;
+	            String outname;
+	            File weiboout;
+	            PrintStream out;
+	            
+	            PrintStream old = System.out; 
+	            System.out.println("ok");
+	           
+	            File myDir=new File("D:\\weiboout");
+	            
+	            File[] fileall = myDir.listFiles();
+	            System.out.println("ok");
+	            for(int ifile=1;ifile<=nfile;ifile=ifile+1) //注意这里i的大小，重头算就是1
+	            {
+	            File weiboin = fileall[ifile-1];
+	            System.out.println(weiboin);
+	            
+
+	            
+	            //以下开始循环读取每一行微博并处理和计算词频
+	            inputStream=new FileInputStream(weiboin);
+	            b=new byte[(int)(weiboin).length()];
+	            inputStream.read(b);
+	            sInput = new String(b,"utf-8");
+	            
+	            System.out.println("ok");
+	            
+	          	String  s   = sInput; 
+        	   	String  sub = "";
+        	  	sub = s.replaceAll( "[A-Za-z0-9]+.{10}|\\pP|\\pS|[a]",""); //这里assume英文单词不超过10个字母, p表示property,P表示标点符号 。
+                      
+	            String argu1 ="D:\\Java\\ICTCLAS2013-simple\\Data\\UserDict.txt";
+              int nCount=testNLPIR.NLPIR_ImportUserDict(argu1.getBytes("utf-8"));
+	            System.out.println("Import User Dictionary entries: "+ nCount);
+	            
+	            nativeBytes = testNLPIR.NLPIR_ParagraphProcess(sub.getBytes("utf-8"),1);
+	            String nativeStr = new String(nativeBytes,0,nativeBytes.length,"utf-8");
+	            
+	         
+	            
+		
+	            //处理分词结果，存储到暂时的数组wordtmp里
+	            nwordtmp = 0;//nwordtmp:表示已经挑出来多少个单词。
+	            for(m=1;m<=wordtmp.length;m=m+1)
+	            {
+	             wordtmp[m-1] = null;
+	            }
+	            y = 1;
+	            System.out.println("ok1");
+	            while(y<nativeStr.length())//nativeStr存储的是分词结果。
+	            {
+	               if((y==1||nativeStr.charAt(y-1)==' ')&&(nativeStr.charAt(y)==' ')==false) //若发现空格，则开始存储新词并且词频加1
+	                 {
+	                  j=y; //单词从y字开始，y表示一个词开始的位置，下面的j表示一个词结束的位置，y-j则是我们读到的词的长度，记住nwordtmp从0开始，
+	                  if((nativeStr.charAt(y)=='/')==false)//词语不能是"/"      
+	                  {      
+	                   while((j<=nativeStr.length())&&((nativeStr.charAt(j-1)=='/')==false))//遇到“/”或者到了微博的结尾则停止
+	                   {
+	                       j = j+1;
+	                   }            
+	                   nwordtmp = nwordtmp + 1;	                  
+	                   wordtmp[nwordtmp-1] = nativeStr.substring(y-1,j-1).trim(); 
+	                   y=j+1;//下一个词语从j+1开始判断, j是‘/’
+	                  }
+	                 }
+	                y = y + 1;
+	             }
+	            System.out.println("ok2");
+	            //将wordtmp归入到总的词组词频里
+	            for(i=1; i<=nwords; i=i+1)
+	            {
+	             counttime[i-1] = 0;
+	             weibowords[i-1] = null;
+	            }
+
+	            System.out.println("ok3");
+	            nstored = 0;
+	            for(y = 1; y <= nwordtmp; y = y+1)
+	            {
+	               flag = 0;
+	               for(j=1; j <= nstored; j=j+1)
+	               {
+	                
+	                 if(wordtmp[y-1].equals (weibowords[j-1])) //如果是个出现过的词语
+	                   {
+	                    counttime[j-1] = counttime[j-1] + 1;   
+	                    
+	                    flag = 1;//表示旧词出现了
+	                    break;
+	                   }   
+	               }
+	             
+	               //如果是一个新词语
+	               if(flag==0)
+	               {
+	                nstored = nstored + 1;
+	                counttime[nstored-1] = 1;
+	                weibowords[nstored-1] = wordtmp[y-1]; 
+	               // System.out.println(nstored);
+	               // System.out.println("newword:"+weibowords[nstored-1]);
+	               }           
+	            }
+
+	            //分词排序
+	            weibo_order = new String[nstored];
+	            count_order = new int[nstored];
+	            norder = 1;//已经排序了的词数目
+	            weibo_order[0] = weibowords[0];
+	            count_order[0] = counttime[0];
+	         
+	            for(x=2;x<=nstored;x=x+1)
+	            {
+	             for(y=1;y<=norder;y=y+1)             
+	              {
+	               if(counttime[x-1]<count_order[y-1]&&counttime[x-1]>=count_order[y])//y以后的词语都后移一位
+	                {
+	                 for(j=norder;j>=y+1;j=j-1) //修改
+	                 {
+	                  count_order[j] = count_order[j-1];
+	                  weibo_order[j] = weibo_order[j-1];                  
+	                 }
+	                 count_order[y] = counttime[x-1]; 
+	                 weibo_order[y] = weibowords[x-1];                
+	                 norder = norder + 1;
+	                 break;
+	                }
+	                
+	               else if(counttime[x-1]>=count_order[0])
+	                {
+	                 for(j=norder-1;j>0;j=j-1)
+	                 {
+	                  count_order[j] = count_order[j-1];
+	                  weibo_order[j] = weibo_order[j-1]; 
+	                 } 
+	                 count_order[0]= counttime[x-1];  
+	                 weibo_order[0] = weibowords[x-1];                                
+	                 norder = norder + 1;
+	                 break;             
+	                }
+	              }
+	            }
+	            System.out.println("ok4");
+	            
+	            //将词组和词频输出到文件中
+	           outname = String.valueOf(weiboin);
+	           weiboout = new File("D:\\weibooutcome\\"+"fenci"+outname.substring(17,20)+"-out.txt");//输出文件名
+	         
+	
+	           out = new PrintStream(new FileOutputStream(weiboout));
+	           System.out.println("ok5");
+	           System.setOut(out); //设置默认输出位置
+	           System.out.println("词语"+"     "+"词频"+"      "+"id");
+	         
+	           for(x=1;x<nstored;x=x+1)
+	           {
+	        	  if(weibo_order[x-1].length()>1)
+	        	  {
+	        		  if(count_order[x-1] >0)			  
+	        	        {
+	                     System.out.println(String.format("%-30s%-50d%-8s",weibo_order[x-1],count_order[x-1],outname.substring(17,20)));
+	        	       }
+	              }
+	           }
+
+	           out.close();
+	           inputStream.close();  
+	          
+	           System.setOut(old);
+	           System.out.println("File "+outname+ "done...");
+	          }  
+	           //释放分词组件资源            
+	           //testICTCLAS50.ICTCLAS_Exit();         
+	            testNLPIR.NLPIR_Exit();
+	            }catch(Exception ex){}
+	    }
+	}
+
+
+
+
+ 
+
+
+ 
+
+	 
+
+
+
+ 
+
+
+ 
