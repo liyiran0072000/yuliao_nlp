@@ -1,0 +1,144 @@
+import kevin.zhang.NLPIR;
+//*This version is match whether a line contains words about government
+//update:2013-11-13
+//@author: Yiran Li
+
+
+import java.util.*;
+import java.io.*;
+
+public class testshixian {
+
+
+	
+	 static {
+		 System.out.println(System.getProperty("java.library.path")); 
+         
+     }
+	 
+	 
+		public static void main(String[] args) throws Exception
+		{
+			       String[] wordtmp = new String[10000000];
+		           
+		          
+		            String[] wordtmp2 = new String[10000000];
+		            String[] wordtmp3 = new String[10000000];
+		            System.out.println("ok");
+		            
+		       
+		            int m;
+		            int i;	       
+		            int nfile=547;
+		           File weibonameout;	     
+		           PrintStream out;
+		           InputStream inputStream;
+		            byte[]b;
+		            String sInput;		          
+		            PrintStream old = System.out; 
+		            
+		            File myDir=new File("D:\\weibooutdata\\rawdata-2");
+		            File[] fileall = myDir.listFiles();
+		            System.out.println("ok");
+		            for(int ifile=1;ifile<=nfile;ifile=ifile+1) //注意这里i的大小，重头算就是1
+		            {
+		            File weiboin = fileall[ifile-1];
+		            System.out.println(weiboin);
+		           
+		            FileInputStream a1=new FileInputStream(weiboin);
+		            InputStreamReader b1 = new InputStreamReader(a1,"UTF-8");
+		            BufferedReader c1 = new BufferedReader(b1); 	            
+		            
+		            System.out.println("ok1");		       	        		           
+		            // 设置 读取文件的编码类型。。。		       
+		            int readerLine1 = 0;
+			        for(m=1;m<=wordtmp.length;m=m+1)
+			           {
+			            wordtmp[m-1] = null;
+			           }		                
+			        while (c1.ready()) {
+			           readerLine1 ++;   //设置 从那一行开始 取数据
+			           wordtmp[readerLine1-1] = c1.readLine();
+			            }
+			          c1.close();
+			          b1.close();
+			            			         
+		          	
+		            File file2 = new File("D:\\Weibo-data\\zhiwei.txt");	
+		            FileInputStream a2 = new FileInputStream(file2);
+		            // 设置 读取文件的编码类型。。。
+		            InputStreamReader b2 = new InputStreamReader(a2,"UTF-8");
+		            BufferedReader c2 = new BufferedReader(b2);  
+		            int readerLine2 = 0;		            
+		            for(m=1;m<=wordtmp2.length;m=m+1)
+			        {
+			          wordtmp2[m-1] = null;
+			        }
+		            while (c2.ready()) {
+		             readerLine2 ++;   //设置 从那一行开始 取数据	        
+		             wordtmp2[readerLine2-1] = c2.readLine(); 
+		           //  System.out.println(wordtmp2[readerLine2-1]);	           
+		             }
+		            c2.close();
+		            b2.close();     
+		            for(m=1;m<=4000000;m=m+1)
+			        {
+			          wordtmp3[m-1] = null;
+			        }
+		            int countname = 0;
+		            String name;
+		            String name2;		        
+		            System.out.println("ok2");	            	            
+	
+                    for(m=1;m<readerLine1;m=m+1)
+	                  {
+	                   name=wordtmp[m-1];
+	                   for(i=1;i<readerLine2;i=i+1)
+	                     {
+              	          name2 = wordtmp2[i-1];		          
+	                      int index1 = name.indexOf(name2);
+	                      // System.out.println(name2); 
+	                      //  System.out.println(index1); 
+	                      if(index1!=-1) 
+	                       {
+	                        countname = countname + 1;
+	                        wordtmp3[countname-1]=wordtmp[m-1];               
+	                       }
+	                     }	
+	                   }
+	                System.out.println("ok3");
+	                
+	                String outname;
+	                File weiboout;
+	                outname = String.valueOf(weiboin);
+	               
+	               
+	                weiboout = new File("D:\\weiboout\\"+"match"+outname.substring(31,34)+"-out.txt");//输出文件名
+	                System.out.println("ok4");           
+	           
+
+	                out=new PrintStream(new FileOutputStream(weiboout));            
+	                System.out.println("ok5"); 
+	   	            System.setOut(out); //设置默认输出位置  
+		            for(m=1;m<=countname;m=m+1)
+		             {
+		              System.out.println(wordtmp3[m-1]);     
+		             }  
+		            out.close();
+		          //  fos.close();
+		            System.setOut(old);
+			           System.out.println("File "+outname+ "done...");
+		            }
+		}
+}
+
+		
+		    
+
+
+		 
+
+
+
+
+
